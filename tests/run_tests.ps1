@@ -13,7 +13,15 @@ try {
         throw "Fallaron las pruebas de los analizadores."
     }
 
-    $valid = ("1`n0.5" | & java -cp bin Main tests/fixtures/valid.txt | Out-String)
+    # Los valores x = 1, y = 0.5 se envian por redireccion desde un archivo temporal:
+    # la tuberia de Windows PowerShell 5.1 altera el primer valor leido por consola.
+    $inputFile = Join-Path ([IO.Path]::GetTempPath()) "evaluador_valores.txt"
+    [IO.File]::WriteAllText($inputFile, "1`n0.5`n", (New-Object System.Text.UTF8Encoding($false)))
+    try {
+        $valid = (cmd /c "java -cp bin Main tests\fixtures\valid.txt < `"$inputFile`"" | Out-String)
+    } finally {
+        Remove-Item $inputFile -Force -ErrorAction SilentlyContinue
+    }
     if ($valid -notmatch "Analisis sintactico exitoso") {
         throw "CLI: no reconoce la expresion valida."
     }

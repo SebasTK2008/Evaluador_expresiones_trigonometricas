@@ -177,11 +177,18 @@ tests/
 powershell -NoProfile -ExecutionPolicy Bypass -File tests\run_tests.ps1
 ```
 
-El script compila con `--release 11` y `-Xlint:all`, ejecuta 138 comprobaciones
-de tokens, expresiones válidas, errores léxicos/sintácticos y lectura de
-archivos, además de 5 verificaciones de CLI. La verificación de la expresión
-válida envía los valores `x = 1` y `y = 0.5` por la entrada estándar y comprueba
-el resultado de la evaluación.
+El script compila con `--release 11` y `-Xlint:all`, ejecuta 261 comprobaciones
+de tokens, expresiones válidas, errores léxicos/sintácticos, lectura de
+archivos, **evaluación numérica** (ejemplos del enunciado, precedencia y
+asociatividad, identidades trigonométricas) y **errores semánticos**, además de
+5 verificaciones de CLI. La verificación de la expresión válida envía los
+valores `x = 1` y `y = 0.5` por redirección de entrada y comprueba el resultado
+de la evaluación.
+
+`tests/casos.md` contiene la tabla de casos de prueba: cada expresión del
+enunciado y otras de precedencia, con el resultado del programa, el valor de
+referencia calculado de forma independiente (con `[Math]` de .NET) y la
+diferencia obtenida.
 
 El diálogo gráfico y la resistencia a anidamiento extremo no están cubiertos
 por estas pruebas. El parser utiliza la pila de llamadas de Java, por lo que
