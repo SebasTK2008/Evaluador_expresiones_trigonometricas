@@ -166,30 +166,46 @@ src/
   parser/SyntaxException.java     Error sintáctico
   parser/SemanticException.java   Error semántico
 tests/
-  AnalyzerTest.java               Pruebas de los analizadores y lector
-  fixtures/                      Archivos de prueba
-  run_tests.ps1                   Compilación y pruebas automatizadas
+  01_ejemplo_enunciado.txt / .expected.txt   (y así hasta el 17)
+  TEST_CASES.md                   Descripción y validación matemática de los casos
 ```
 
 ## Pruebas
 
+Cada archivo `.txt` de la carpeta `tests/` es una expresión y su `.expected.txt`
+contiene el resultado esperado. Si la expresión tiene variables, la primera línea
+del `.expected.txt` indica los valores que hay que ingresar (en radianes).
+
+| Caso | Qué prueba | Resultado esperado |
+|---|---|---|
+| `01_ejemplo_enunciado` | `sen(3.14 / 2) + cos(0) * 2^2` | `4.9999996829318345` |
+| `02_suma_funciones` | `sen(x) + cos(y)` | `1.7190535466982693` |
+| `03_funciones_anidadas` | `sen(cos(x))+ tan(y)/cos(x)` | `1.5255004933346608` |
+| `04_identidad_pitagorica` | `cos(x)^2 + sen(x)^2` | `0.9999999999999999` (≈ 1) |
+| `05_funcion_simple` | `sin(x)` | `0.6816387600233341` |
+| `06_argumento_suma` | `cos(x + y)` | `-0.9899924966004454` |
+| `07_argumento_compuesto` | `tan(x^2 + sin(x))` | `-3.6038035320088055` |
+| `08_potencia_derecha` | `2^3^2` | `512.0` |
+| `09_menos_unario` | `-2^2` | `-4.0` |
+| `10_resta_izquierda` | `8 - 3 - 2` | `3.0` |
+| `11_parentesis` | `(2 + 3) * 4 / 8` | `2.5` |
+| `12_reales_cientificos` | `1.5e2 + 3.14 * 2^-3` | `150.3925` |
+| `13_tokens` | Tokens de `sen(x) + cos(0) * 2^2` | Lista de tokens |
+| `14_error_lexico` | `3.` (número incompleto) | Error léxico |
+| `15_error_sintactico` | `sin(x + ) * 2` | Error sintáctico |
+| `16_error_division_cero` | `1 / (x - x)` | Error semántico |
+| `17_error_tangente` | `tan(x)` con `x = π/2` | Error semántico |
+
+Para comprobar un caso, ejecuta `Main` con el `.txt`, ingresa los valores que
+pide el programa y compara la salida con su `.expected.txt`. El caso 13 se ejecuta
+con `--tokens`:
+
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tests\run_tests.ps1
+java -cp bin Main tests\02_suma_funciones.txt
+java -cp bin Main --tokens tests\13_tokens.txt
 ```
 
-El script compila con `--release 11` y `-Xlint:all`, ejecuta 261 comprobaciones
-de tokens, expresiones válidas, errores léxicos/sintácticos, lectura de
-archivos, **evaluación numérica** (ejemplos del enunciado, precedencia y
-asociatividad, identidades trigonométricas) y **errores semánticos**, además de
-5 verificaciones de CLI. La verificación de la expresión válida envía los
-valores `x = 1` y `y = 0.5` por redirección de entrada y comprueba el resultado
-de la evaluación.
-
-`tests/casos.md` contiene la tabla de casos de prueba: cada expresión del
-enunciado y otras de precedencia, con el resultado del programa, el valor de
-referencia calculado de forma independiente (con `[Math]` de .NET) y la
-diferencia obtenida.
-
-El diálogo gráfico y la resistencia a anidamiento extremo no están cubiertos
-por estas pruebas. El parser utiliza la pila de llamadas de Java, por lo que
-una entrada extremadamente anidada puede agotarla.
+Los resultados se validaron contra el cálculo independiente de cada expresión;
+el detalle está en `tests/TEST_CASES.md`. No hay un ejecutor automático de
+pruebas. Además, el parser usa la pila de llamadas de Java, por lo que una
+entrada extremadamente anidada puede agotarla.
