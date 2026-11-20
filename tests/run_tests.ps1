@@ -13,9 +13,12 @@ try {
         throw "Fallaron las pruebas de los analizadores."
     }
 
-    $valid = (& java -cp bin Main tests/fixtures/valid.txt | Out-String)
+    $valid = ("1`n0.5" | & java -cp bin Main tests/fixtures/valid.txt | Out-String)
     if ($valid -notmatch "Analisis sintactico exitoso") {
         throw "CLI: no reconoce la expresion valida."
+    }
+    if ($valid -notmatch "Resultado: 1\.5255004933346") {
+        throw "CLI: evaluacion incorrecta de la expresion valida."
     }
     $tokens = (& java -cp bin Main --tokens tests/fixtures/valid.txt | Out-String)
     if ($tokens -notmatch "TOK_EOF" -or $tokens -match "ANALISIS SINTACTICO") {

@@ -1,9 +1,16 @@
 import input.ExpressionFileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lexer.Scanner;
 import parser.Parser;
+import parser.SemanticException;
 import parser.SyntaxException;
 import token.Token;
+import token.TokenType;
 
 /**
  * Entrada adaptada de Toy: Main [--tokens] [ruta/al/archivo.txt].
@@ -53,6 +60,18 @@ public class Main {
             System.out.println("Analisis sintactico exitoso: la expresion es valida.");
         } catch (SyntaxException e) {
             System.out.println(e.getMessage());
+            return;
+        }
+
+        Map<String, Double> valores = pedirValores(tokens);
+
+        System.out.println();
+        System.out.println("=== EVALUACION SEMANTICA ===");
+        try {
+            double resultado = new Parser(tokens).evaluar(valores);
+            System.out.println("Resultado: " + resultado);
+        } catch (SemanticException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -70,6 +89,47 @@ public class Main {
                 // La clasificacion se detiene en el primer identificador invalido.
                 break;
             }
+        }
+    }
+
+    /** Pide una sola vez el valor de cada variable, en el orden en que aparece. */
+    private static Map<String, Double> pedirValores(List<Token> tokens) {
+        Set<String> variables = new LinkedHashSet<>();
+        for (Token token : tokens) {
+            if (token.getTipo() == TokenType.TOK_VAR) {
+                variables.add(token.getLexema());
+            }
+        }
+        Map<String, Double> valores = new HashMap<>();
+        if (variables.isEmpty()) {
+            return valores;
+        }
+        java.util.Scanner teclado = new java.util.Scanner(System.in);
+        System.out.println();
+        System.out.println("=== VALORES DE LAS VARIABLES (radianes) ===");
+        for (String variable : variables) {
+            valores.put(variable, leerNumero(teclado, variable));
+        }
+        return valores;
+    }
+
+    /** Repite la pregunta hasta recibir un numero real finito. Acepta coma o punto. */
+    private static double leerNumero(java.util.Scanner teclado, String variable) {
+        while (true) {
+            System.out.print(variable + " = ");
+            if (!teclado.hasNextLine()) {
+                throw new IllegalStateException("No se recibio un valor para " + variable);
+            }
+            String linea = teclado.nextLine().trim().replace(',', '.');
+            try {
+                double valor = Double.parseDouble(linea);
+                if (Double.isFinite(valor)) {
+                    return valor;
+                }
+            } catch (NumberFormatException e) {
+                // Se vuelve a preguntar.
+            }
+            System.out.println("Valor invalido: escribe un numero real (por ejemplo 1.57 o -2,5).");
         }
     }
 }
