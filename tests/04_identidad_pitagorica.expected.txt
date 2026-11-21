@@ -1,0 +1,2 @@
+Valores: x = 2.5
+Resultado: 0.9999999999999999

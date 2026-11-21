@@ -1,0 +1,1 @@
+Error esperado: Error sintactico: se esperaba un numero, variable, funcion o '(', pero se encontro ')' (token 5).

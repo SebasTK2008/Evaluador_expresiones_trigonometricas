@@ -1,0 +1,2 @@
+Valores: x = 1.5707963267948966
+Error esperado: Error semantico: tan(1.5707963267948966) no esta definida
